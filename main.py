@@ -1,104 +1,38 @@
 import os
-from urllib.parse import urlparse, urlsplit, unquote
-import datetime
-import requests
+import time
 from dotenv import load_dotenv
 import telegram
 
-
-def download_image(url, path_to_save):
-    response = requests.get(url)
-    response.raise_for_status()
-
-    os.makedirs(os.path.dirname(path_to_save), exist_ok=True)
-
-    with open(path_to_save, "wb") as file:
-        file.write(response.content)
+from fetch_nasa import fetch_nasa_apod, fetch_nasa_epic
+from fetch_spacex import fetch_spacex_launch
 
 
-def fetch_spacex_lauch(id="latest"):
-    url = f"https://api.spacexdata.com/v4/launches/{id}"
-
-    response = requests.get(url)
-    response.raise_for_status()
-
-    images = response.json()["links"]["flickr"]["original"]
-
-    for image_index, image in enumerate(images):
-        image_extension = get_extension_from_url(image)
-        download_image(
-            image,
-            f"images/spacex/spacex_{image_index + 1}{image_extension}"
-        )
-
-
-def fetch_nasa_apod(api_key, count=15):
-    params = {
-      "api_key": api_key,
-      "count": count,
-      "thumbs": True,
-    }
-    response = requests.get(
-        "https://api.nasa.gov/planetary/apod",
-        params=params
-    )
-    response.raise_for_status()
-
-    images_data = response.json()
-
-    for image_id, image_data in enumerate(images_data):
-        url = image_data["url"]
-
-
-        if image_data["media_type"] == "video":
-            url = image_data["thumbnail_url"]
-
-        image_extension = get_extension_from_url(url)
-
-        download_image(
-            url,
-            f"images/nasa_apod/nasa_{image_id + 1}{image_extension}"
-        )
-
-
-def fetch_nasa_epic(api_key, max_count=5):
-    params = {
-      "api_key": api_key,
-    }
-    response = requests.get(
-        "https://api.nasa.gov/EPIC/api/natural",
-        params=params
-    )
-    response.raise_for_status()
-
-    images_data = response.json()[:max_count]
-
-    for image_number, image_data in enumerate(images_data):
-        image_date = datetime.datetime.fromisoformat(image_data["date"])
-        image_id = image_data["identifier"]
-        image_url = f"https://api.nasa.gov/EPIC/archive/natural/{image_date.strftime('%Y/%m/%d')}/png/epic_1b_{image_id}.png?api_key={api_key}"
-
-        download_image(
-            image_url,
-            f"images/nasa_epic/epic_{image_number + 1}.png"
-        )
-
-
-def get_extension_from_url(url):
-    parsed_url = urlparse(unquote(url))
-    file_name = os.path.split(parsed_url.path)[1]
-
-    return os.path.splitext(file_name)[1]
+def upload_photo_to_tg(bot, chat_id, image_path):
+    bot.send_photo(chat_id=chat_id, photo=open(image_path, 'rb'), timeout=600)
 
 
 def main():
     load_dotenv()
     tg_api_key = os.getenv("TG_API_KEY")
     tg_channel_id = os.getenv("TG_CHANNEL_ID")
+    nasa_api_key = os.getenv("NASA_API_KEY")
+    upload_interval = os.getenv("UPLOAD_INTERVAL") or 86400
 
     bot = telegram.Bot(token=tg_api_key)
-    bot.send_document(chat_id=tg_channel_id, document=open('images/nasa_apod/nasa_1.jpg', 'rb'))
 
+    while True:
+        fetch_spacex_launch("5eb87ce4ffd86e000604b337")
+        fetch_nasa_apod(nasa_api_key)
+        fetch_nasa_epic(nasa_api_key)
+
+        for content in os.listdir("images"):
+            if os.path.isdir(os.path.join("images", content)):
+                images_folder = os.path.join("images", content)
+
+                for image in os.listdir(images_folder):
+                    upload_photo_to_tg(bot, tg_channel_id, os.path.join(images_folder, image))
+
+        time.sleep(upload_interval)
 
 
 if __name__ == "__main__":
