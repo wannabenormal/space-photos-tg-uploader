@@ -49,6 +49,7 @@ def fetch_nasa_apod(api_key, count=15):
     for image_id, image_data in enumerate(images_data):
         url = image_data["url"]
 
+
         if image_data["media_type"] == "video":
             url = image_data["thumbnail_url"]
 
@@ -92,15 +93,11 @@ def get_extension_from_url(url):
 
 def main():
     load_dotenv()
-    nasa_api_key = os.getenv("NASA_API_KEY")
     tg_api_key = os.getenv("TG_API_KEY")
-
-    fetch_spacex_lauch("5eb87ce4ffd86e000604b337")
-    fetch_nasa_apod(nasa_api_key)
-    fetch_nasa_epic(nasa_api_key)
+    tg_channel_id = os.getenv("TG_CHANNEL_ID")
 
     bot = telegram.Bot(token=tg_api_key)
-    bot.send_message(chat_id="@test_space_photos", text="Ping")
+    bot.send_document(chat_id=tg_channel_id, document=open('images/nasa_apod/nasa_1.jpg', 'rb'))
 
 
 
