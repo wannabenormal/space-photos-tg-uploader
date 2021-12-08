@@ -3,6 +3,7 @@ from urllib.parse import urlparse, urlsplit, unquote
 import datetime
 import requests
 from dotenv import load_dotenv
+import telegram
 
 
 def download_image(url, path_to_save):
@@ -92,10 +93,15 @@ def get_extension_from_url(url):
 def main():
     load_dotenv()
     nasa_api_key = os.getenv("NASA_API_KEY")
+    tg_api_key = os.getenv("TG_API_KEY")
 
     fetch_spacex_lauch("5eb87ce4ffd86e000604b337")
     fetch_nasa_apod(nasa_api_key)
     fetch_nasa_epic(nasa_api_key)
+
+    bot = telegram.Bot(token=tg_api_key)
+    bot.send_message(chat_id="@test_space_photos", text="Ping")
+
 
 
 if __name__ == "__main__":
