@@ -17,8 +17,8 @@ def save_image(image, path_to_save):
         file.write(image)
 
 
-def download_image(url):
-    response = requests.get(url)
+def download_image(url, params={}):
+    response = requests.get(url, params=params)
     response.raise_for_status()
 
     return response.content

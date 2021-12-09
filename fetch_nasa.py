@@ -48,9 +48,13 @@ def fetch_nasa_epic(api_key, max_count=5):
     for image_index, image_data in enumerate(images_data, 1):
         image_date = datetime.datetime.fromisoformat(image_data["date"])
         image_id = image_data["identifier"]
-        image_url = f"https://api.nasa.gov/EPIC/archive/natural/{image_date.strftime('%Y/%m/%d')}/png/epic_1b_{image_id}.png?api_key={api_key}"
+        image_url = f"https://api.nasa.gov/EPIC/archive/natural/{image_date.strftime('%Y/%m/%d')}/png/epic_1b_{image_id}.png"
 
-        image = download_image(image_url)
+        image_url_params = {
+          "api_key": api_key
+        }
+
+        image = download_image(image_url, params=image_url_params)
         save_image(
             image,
             f"images/nasa_epic/epic_{image_index}.png"
