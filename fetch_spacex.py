@@ -1,5 +1,5 @@
 import requests
-from utils import download_image, get_extension_from_url
+from utils import download_image, save_image, get_extension_from_url
 
 
 def fetch_spacex_launch(launch_id="latest"):
@@ -10,9 +10,11 @@ def fetch_spacex_launch(launch_id="latest"):
 
     images = response.json()["links"]["flickr"]["original"]
 
-    for image_index, image in enumerate(images, 1):
-        image_extension = get_extension_from_url(image)
-        download_image(
+    for image_index, image_url in enumerate(images, 1):
+        image_extension = get_extension_from_url(image_url)
+
+        image = download_image(image_url)
+        save_image(
             image,
             f"images/spacex/spacex_{image_index}{image_extension}"
         )

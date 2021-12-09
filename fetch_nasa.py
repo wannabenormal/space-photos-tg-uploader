@@ -1,6 +1,6 @@
 import requests
 import datetime
-from utils import download_image, get_extension_from_url
+from utils import download_image, save_image, get_extension_from_url
 
 
 def fetch_nasa_apod(api_key, count=15):
@@ -17,7 +17,7 @@ def fetch_nasa_apod(api_key, count=15):
 
     images_data = response.json()
 
-    for image_id, image_data in enumerate(images_data):
+    for image_index, image_data in enumerate(images_data, 1):
         url = image_data["url"]
 
 
@@ -26,9 +26,10 @@ def fetch_nasa_apod(api_key, count=15):
 
         image_extension = get_extension_from_url(url)
 
-        download_image(
-            url,
-            f"images/nasa_apod/nasa_{image_id + 1}{image_extension}"
+        image = download_image(url)
+        save_image(
+            image,
+            f"images/nasa_apod/nasa_{image_index}{image_extension}"
         )
 
 
@@ -44,12 +45,13 @@ def fetch_nasa_epic(api_key, max_count=5):
 
     images_data = response.json()[:max_count]
 
-    for image_number, image_data in enumerate(images_data):
+    for image_index, image_data in enumerate(images_data, 1):
         image_date = datetime.datetime.fromisoformat(image_data["date"])
         image_id = image_data["identifier"]
         image_url = f"https://api.nasa.gov/EPIC/archive/natural/{image_date.strftime('%Y/%m/%d')}/png/epic_1b_{image_id}.png?api_key={api_key}"
 
-        download_image(
-            image_url,
-            f"images/nasa_epic/epic_{image_number + 1}.png"
+        image = download_image(image_url)
+        save_image(
+            image,
+            f"images/nasa_epic/epic_{image_index}.png"
         )
