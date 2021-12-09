@@ -12,7 +12,7 @@ def main():
     tg_api_key = os.getenv("TG_API_KEY")
     tg_channel_id = os.getenv("TG_CHANNEL_ID")
     nasa_api_key = os.getenv("NASA_API_KEY")
-    upload_interval = os.getenv("UPLOAD_INTERVAL") or 86400
+    upload_interval = int(os.getenv("UPLOAD_INTERVAL")) or 86400
 
     bot = telegram.Bot(token=tg_api_key)
 
