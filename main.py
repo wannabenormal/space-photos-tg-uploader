@@ -22,16 +22,18 @@ def main():
         fetch_nasa_epic(nasa_api_key)
 
         for filename in os.listdir("images"):
-            if os.path.isdir(os.path.join("images", filename)):
-                images_folder = os.path.join("images", filename)
+            if not os.path.isdir(os.path.join("images", filename)):
+                continue
+            
+            images_folder = os.path.join("images", filename)
 
-                for image_name in os.listdir(images_folder):
-                    image_path = os.path.join(images_folder, image_name)
-                    
-                    with open(image_path, "rb") as image:
-                        bot.send_photo(chat_id=tg_channel_id, photo=image, timeout=600)
-                    
-                    time.sleep(upload_interval)
+            for image_name in os.listdir(images_folder):
+                image_path = os.path.join(images_folder, image_name)
+                
+                with open(image_path, "rb") as image:
+                    bot.send_photo(chat_id=tg_channel_id, photo=image, timeout=600)
+                
+                time.sleep(upload_interval)
 
 
 if __name__ == "__main__":
