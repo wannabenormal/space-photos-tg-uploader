@@ -10,15 +10,10 @@ def get_extension_from_url(url):
     return os.path.splitext(file_name)[1]
 
 
-def save_image(image, path_to_save):
-    os.makedirs(os.path.dirname(path_to_save), exist_ok=True)
-
-    with open(path_to_save, "wb") as file:
-        file.write(image)
-
-
-def download_image(url, params={}):
+def download_image(url, path_to_save, params={}):
     response = requests.get(url, params=params)
     response.raise_for_status()
 
-    return response.content
+    image = response.content
+    with open(path_to_save, "wb") as file:
+        file.write(image)

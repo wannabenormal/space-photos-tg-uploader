@@ -1,9 +1,12 @@
+import os
 import requests
 import datetime
-from utils import download_image, save_image, get_extension_from_url
+from utils import download_image, get_extension_from_url
 
 
 def fetch_nasa_apod(api_key, count=15):
+    os.makedirs(os.path.dirname("images/nasa_apod/"), exist_ok=True)
+
     params = {
       "api_key": api_key,
       "count": count,
@@ -26,14 +29,15 @@ def fetch_nasa_apod(api_key, count=15):
 
         image_extension = get_extension_from_url(url)
 
-        image = download_image(url)
-        save_image(
-            image,
-            f"images/nasa_apod/nasa_{image_index}{image_extension}"
+        download_image(
+            url,
+            path_to_save=f"images/nasa_apod/nasa_{image_index}{image_extension}"
         )
 
 
 def fetch_nasa_epic(api_key, max_count=5):
+    os.makedirs(os.path.dirname("images/nasa_epic/"), exist_ok=True)
+
     params = {
       "api_key": api_key,
     }
@@ -54,8 +58,8 @@ def fetch_nasa_epic(api_key, max_count=5):
           "api_key": api_key
         }
 
-        image = download_image(image_url, params=image_url_params)
-        save_image(
-            image,
-            f"images/nasa_epic/epic_{image_index}.png"
+        download_image(
+            image_url,
+            f"images/nasa_epic/epic_{image_index}.png",
+            params=image_url_params
         )
